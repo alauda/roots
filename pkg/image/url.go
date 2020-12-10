@@ -2,6 +2,7 @@ package image
 
 import (
 	"fmt"
+	"net"
 	"regexp"
 	"strings"
 )
@@ -53,6 +54,10 @@ func (url URL) Endpoint(segments ...string) string {
 	// the host may include the http protocol if it points to a local address
 	if localurl.MatchString(url.Host) {
 		host = url.Host
+	}
+
+	if net.ParseIP(strings.Split(url.Host, ":")[0]) != nil  {
+		host = fmt.Sprintf("http://%s", url.Host)
 	}
 
 	return fmt.Sprintf("%s/v2/%s/%s/%s",
