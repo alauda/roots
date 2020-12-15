@@ -131,6 +131,19 @@ func (r *Remote) Manifest() (*Manifest, error) {
 	return m, nil
 }
 
+// GetSinglePlatformDigest similar to Digest, but support the old image format.
+// "application/vnd.docker.distribution.manifest.v2+json", not the fat manifest
+func (r *Remote) GetSinglePlatformDigest() (string, error) {
+	// platform is not working here
+	res, err := r.request("HEAD", ManifestMimeType, "manifests", r.url.Reference())
+
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch manifest: %v", err)
+	}
+
+	return res.Header.Get("Docker-Content-Digest"), nil
+}
+
 // Digest gets the latest digest of the image. The current platform is
 // respected if one was set through WithPlatform.
 func (r *Remote) Digest() (string, error) {
@@ -140,6 +153,11 @@ func (r *Remote) Digest() (string, error) {
 	lst, err := r.ManifestList()
 	if err != nil {
 		return "", err
+	}
+
+	// if we don't use this function, the normal path will panic
+	if len(lst.Manifests) == 0 {
+		return r.GetSinglePlatformDigest()
 	}
 
 	// if there's a list, but no platform, take the first item
