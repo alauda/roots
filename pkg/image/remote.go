@@ -156,7 +156,7 @@ func (r *Remote) Digest() (string, error) {
 	}
 
 	// if we don't use this function, the normal path will panic
-	if len(lst.Manifests) == 0 {
+	if lst == nil || len(lst.Manifests) == 0 {
 		return r.GetSinglePlatformDigest()
 	}
 
