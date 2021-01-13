@@ -2,7 +2,6 @@ package image
 
 import (
 	"fmt"
-	"net"
 	"regexp"
 	"strings"
 )
@@ -49,15 +48,11 @@ func (url URL) String() string {
 // Endpoint returns an API endpoint of the v2 registry API
 func (url URL) Endpoint(segments ...string) string {
 	// by default, no protocol is given and we force https
-	host := fmt.Sprintf("https://%s", url.Host)
+	host := fmt.Sprintf("http://%s", url.Host)
 
 	// the host may include the http protocol if it points to a local address
 	if localurl.MatchString(url.Host) {
 		host = url.Host
-	}
-
-	if net.ParseIP(strings.Split(url.Host, ":")[0]) != nil  {
-		host = fmt.Sprintf("http://%s", url.Host)
 	}
 
 	return fmt.Sprintf("%s/v2/%s/%s/%s",
